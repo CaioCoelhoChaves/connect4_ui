@@ -1,6 +1,6 @@
 # connect4
 
-A new Flutter application.
+Connect 4 Game online
 
 ## Getting Started
 
