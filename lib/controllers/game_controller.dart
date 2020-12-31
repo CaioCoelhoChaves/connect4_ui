@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:connect4/main.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class GameController extends GetxController{
@@ -20,12 +21,10 @@ class GameController extends GetxController{
     }
 
     MySocket.socket.on('status', (status){
-      print(status);
       this.status.value = status;
     });
 
     MySocket.socket.on('turn', (player){
-      print(player);
       this.playerTurn.value = player;
     });
 
@@ -38,8 +37,15 @@ class GameController extends GetxController{
     });
 
     MySocket.socket.on('theWinner', (winner){
-      if(!Get.isSnackbarOpen){
-        Get.snackbar('Temos um vencedor!', 'Jogador de cor: ' + winner);
+      String winnerColor;
+      if(winner == 'blue') winnerColor = "Azul.";
+      else if(winner == 'red') winnerColor = "Vermelha.";
+
+      if(!Get.isDialogOpen){
+        Get.defaultDialog(
+          title: "Temos um vencedor!",
+          content: Text("Jogador de cor: " + winnerColor),
+        );
       }
     });
 

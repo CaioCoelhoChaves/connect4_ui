@@ -15,6 +15,7 @@ class GameView extends StatefulWidget {
 
 class _GameViewState extends State<GameView> {
   GameController _controller = Get.put(new GameController());
+  double _gridWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -32,63 +33,87 @@ class _GameViewState extends State<GameView> {
 
         ),
         backgroundColor: Colors.black87,
-        body: WillPopScope(
-          child: Center(
-            child: Column(
-              children: [
-                Container(
-                  margin: EdgeInsets.only(top:2*vh),
-                  width: 80*vw,
-                  height: 10*vh,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 7,
-                    itemBuilder: (_,index) =>
-                    Container(
-                      color: Colors.blue,
-                      width: (80*vw) / 7,
-                      child: FlatButton(
-                        child: Icon(Icons.arrow_drop_down, size: 3*vh,),
-                        onPressed:  (){_controller.newPlay(index, widget.room);},
-                      )
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 80 * vw,
-                  height: 70*vh,
-                  child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 7,
-                        crossAxisSpacing: 5.0,
-                        mainAxisSpacing: 5.0,
-                        childAspectRatio: 2.5,
+        body: LayoutBuilder(
+          builder: (context, constraints){
+            if(constraints.maxWidth <= 770) _gridWidth = 80*vw;
+            else if(constraints.maxWidth > 770 && constraints.maxWidth < 1150) _gridWidth = 60*vw;
+            else if(constraints.maxWidth >= 1150 && constraints.maxWidth < 1415) _gridWidth = 50*vw;
+            else _gridWidth = 40*vw;
+            return WillPopScope(
+              child:Stack(
+                    children: [
+                      Center(
+                        child: Container(
+                          width: _gridWidth,
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 7,
+                                crossAxisSpacing: 5.0,
+                                mainAxisSpacing: 5.0,
+                                childAspectRatio: 1.0,
+                              ),
+                              itemCount: 42,
+                              itemBuilder: (_, index) =>
+                                  GetX<AppController>(
+                                    builder: (_) {
+                                      Color color = Colors.white;
+                                      switch(_controller.tiles[index]){
+                                        case 'white': color = Colors.white;
+                                        break;
+                                        case 'blue': color = Colors.blue;
+                                        break;
+                                        case 'red': color = Colors.red;
+                                      }
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(300),
+                                        child: Container(
+                                          color: color,
+                                        ),
+                                      );
+                                    },
+                                  )
+                          ),
+                        ),
                       ),
-                      itemCount: 42,
-                      itemBuilder: (_, index) =>
-                          GetX<AppController>(
-                            builder: (_) {
-                              Color color = Colors.white;
-                              switch(_controller.tiles[index]){
-                                case 'white': color = Colors.white;
-                                break;
-                                case 'blue': color = Colors.blue;
-                                break;
-                                case 'red': color = Colors.red;
-                              }
-                              return Container(
-                                color: color,
+                      Center(
+                        child: Container(
+                          width: _gridWidth,
+                          child: ListView.builder(
+                            itemCount: 7,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (_,index){
+                              return GestureDetector(
+                                onTap: (){
+                                  _controller.newPlay(index, widget.room);
+                                },
+                                child: Container(
+                                  color: Colors.transparent,
+                                  height: double.maxFinite,
+                                  width: _gridWidth/7,
+                                ),
                               );
                             },
                           )
+
+                          /*Row(
+                            children: [
+                              Container(
+                                height: double.maxFinite,
+                                width: _gridWidth/7,
+                                color: Colors.red,
+                              ),
+                            ],
+                          ),*/
+                        ),
+                      )
+                    ],
                   ),
-                ),
-              ],
-            )
-          ),
-          onWillPop: (){
-            return Future.value(true);
-          },
+              onWillPop: (){
+                return Future.value(true);
+              },
+            );
+          }
         )
     );
   }
